@@ -1,0 +1,41 @@
+* {
+	box-sizing: border-box;
+}
+img {
+	max-width: 100%
+}
+.currentButton {
+	display: inline-block;
+	border: 2px solid black;
+	width: 200px;
+	padding: 10px;
+	margin: 10px;
+}
+.hourlyButton {
+	display: inline-block;
+	border: 2px solid black;
+	width: 200px;
+	padding: 10px;
+	margin: 10px;
+}
+.dailyButton {
+	display: inline-block;
+	border: 2px solid black;
+	width: 200px;
+	padding: 10px;
+	margin: 10px;
+}
+.citySearch {
+	display: block;
+	margin: 20px auto;
+	width: 20%;
+}
+.topPage {
+	text-align: center;
+}
+.bottomPage {
+	text-align: center;
+}
+.button:hover {
+	cursor: pointer;
+}
