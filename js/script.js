@@ -1,23 +1,30 @@
 
 
-//var googApi = AIzaSyCuyaYzHq_NxMewO_udRAp66Rq3zsFcLy8
 
+//Setting up nodes
 var containerNode = document.querySelector('.weatherContainer')
+var currentButtonNode = document.querySelector('.currentButton')
+var hourlyButtonNode = document.querySelector('.hourlyButton')
+var dailyButtonNode = document.querySelector('.dailyButton')
+var searchNode = document.querySelector('.citySearch')
 
+
+//Sets initial hashstring
 var handleCoords = function(coordsObj) {
 	var lat = coordsObj.coords.latitude
 	var lng = coordsObj.coords.longitude
 	var hashString = lat + '/' + lng + '/current'
 	location.hash = hashString 
 }
-
 function handleError(err) {
 	console.log('You dun goofed, son!', err)
 }
 
-navigator.geolocation.getCurrentPosition(handleCoords, handleError)
 
+
+//Different pages to be called upon after changes to hash string
 var handleCurrent = function(weatherObj) {
+	console.log(weatherObj);
 	var currentHtml = ''
 	currentHtml += '<div class="box">'
 	currentHtml += '<h2 class="selectorTitle">Current Weather: </h2>'
@@ -75,64 +82,63 @@ var handleDaily = function(weatherObj) {
 	containerNode.innerHTML = dailyHtml
 }
 
-var controller = function() {
-	var hashStr = location.hash.substr(1)
-	var hashParts = hashStr.split('/')
-	var latitude = hashParts[0]
-	var longitude = hashParts[1]
-	var viewType = hashParts[2]
-	var weatherUrl = 'https://api.darksky.net/forecast/c996138631cd2470df9cd6aee867f8dc/' + latitude + ',' + longitude + '?callback=?'
-	var weatherPromise = $.getJSON(weatherUrl)
-	if (hashParts.length < 3) {
-		navigator.geolocation.getCurrentPosition(handleCoords, handleError)
-		return
-	}
-	if (viewType == 'current') {
-		weatherPromise.then(handleCurrent)
-	}
-	if (viewType == 'hourly') {
-		weatherPromise.then(handleHourly)
-	}
-	if (viewType == 'daily') {
-		weatherPromise.then(handleDaily)
-	}
-}
+//Sets API url and promise
 
+var weatherUrl = 'https://api.darksky.net/forecast/c996138631cd2470df9cd6aee867f8dc/'
+
+
+//Router calls up different pages based on hashstring
+var pageRouter = Backbone.Router.extend({
+	routes: {
+		':lat/:lon/current': 'goToCurrent',
+		':lat/:lon/hourly': 'goToHourly',
+		':lat/:lon/daily': 'goToDaily',
+		'/*' : 'getCurrentCoords'
+	},
+	goToCurrent: function(lat, lon) {
+		console.log('getting weather')
+		console.log(weatherPromise)
+		var weatherPromise = $.getJSON(weatherUrl + lat +','+ lon + '?callback=?')
+		weatherPromise.then(handleCurrent)
+	},
+	goToHourly: function(lat,lon) {
+		var weatherPromise = $.getJSON(weatherUrl + lat +','+ lon + '?callback=?')
+		weatherPromise.then(handleHourly)
+	},
+	goToDaily: function(lat,lon) {
+		var weatherPromise = $.getJSON(weatherUrl + lat +','+ lon + '?callback=?')
+		weatherPromise.then(handleDaily)
+	},
+	getCurrentCoords : function() {
+	console.log('getting current coords');
+		navigator.geolocation.getCurrentPosition(handleCoords, handleError)
+	}
+})
+
+//Change hash string upon clicks. Called upon by event listeners below
 var clickCurrent = function() {
 	var hashStr = location.hash.substr(1)
-	var hashParts = hashStr.split('/')
+    var hashParts = hashStr.split('/')
 	location.hash = hashParts[0] + '/' + hashParts[1] + '/' + 'current'
 }
-
 var clickHourly = function() {
 	var hashStr = location.hash.substr(1)
-	var hashParts = hashStr.split('/')
+    var hashParts = hashStr.split('/')
 	location.hash = hashParts[0] + '/' + hashParts[1] + '/' + 'hourly'
 }
-
 var clickDaily = function() {
 	var hashStr = location.hash.substr(1)
-	var hashParts = hashStr.split('/')
+    var hashParts = hashStr.split('/')
 	location.hash = hashParts[0] + '/' + hashParts[1] + '/' + 'daily'
 }
-
-//var switchLocation = function(eventObj) {
-
-//}
-
-var currentButtonNode = document.querySelector('.currentButton')
-var hourlyButtonNode = document.querySelector('.hourlyButton')
-var dailyButtonNode = document.querySelector('.dailyButton')
-var searchNode = document.querySelector('.citySearch')
-
 currentButtonNode.addEventListener('click', clickCurrent)
-
 hourlyButtonNode.addEventListener('click', clickHourly)
-
 dailyButtonNode.addEventListener('click', clickDaily)
 
-//searchNode.addEventListener('keydown', switchLocation(eventObj))
 
-window.addEventListener('hashchange', controller)
 
-controller()
+var rtr = new pageRouter();
+
+//Start listening for hash changes
+Backbone.history.start()
+
