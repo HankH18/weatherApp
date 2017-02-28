@@ -1,6 +1,6 @@
 
 
-var googApi = AIzaSyCuyaYzHq_NxMewO_udRAp66Rq3zsFcLy8
+//var googApi = AIzaSyCuyaYzHq_NxMewO_udRAp66Rq3zsFcLy8
 
 var containerNode = document.querySelector('.weatherContainer')
 
